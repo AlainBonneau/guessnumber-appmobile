@@ -4,17 +4,31 @@ import Navbar from "./components/Navbar";
 import Counter from "./components/Counter";
 import TryCounter from "./components/TryCounter";
 
-let randomNumber = Math.floor(Math.random() * 1000) + 1; // Nombre aléatoire à deviner
-
 export default function App() {
-  console.log("Mon chiffre aléatoire : ", randomNumber);
-
   const [userGuess, setUserGuess] = useState(""); // Nombre que l'utilisateur entre pour deviner
   const [tryCounter, setTryCounter] = useState(0); // Nombre d'essais
   const [count, setCount] = useState(60); // Compteur de temps
   const [isGameOver, setIsGameOver] = useState(false); // Le jeu est-il terminé ?
   const [isGameWon, setIsGameWon] = useState(false); // L'utilisateur a-t-il gagné ?
   const [isGameStarted, setIsGameStarted] = useState(false); // Le jeu a-t-il commencé ?
+  const [randomNumber, setRandomNumber] = useState(generateRandomNumber()); // Nombre aléatoire à deviner
+
+  // Générer un nouveau nombre aléatoire
+  function generateRandomNumber() {
+    return Math.floor(Math.random() * 1000) + 1;
+  }
+
+  // Réinitialiser le jeu
+  const resetGame = () => {
+    setUserGuess("");
+    setTryCounter(0);
+    setCount(60);
+    setIsGameOver(false);
+    setIsGameWon(false);
+    setIsGameStarted(false);
+    setRandomNumber(generateRandomNumber()); // Générer un nouveau nombre
+    console.log("Nouveau chiffre aléatoire :", randomNumber);
+  };
 
   // Gestion du compteur de temps
   useEffect(() => {
@@ -22,6 +36,10 @@ export default function App() {
 
     if (count === 0) {
       setIsGameOver(true); // Le temps est écoulé, le jeu est terminé
+    }
+
+    if (tryCounter === 10) {
+      setIsGameOver(true); // Le nombre d'essais est atteint, le jeu est terminé
     }
 
     const timer = setInterval(() => setCount((prev) => prev - 1), 1000);
@@ -42,7 +60,7 @@ export default function App() {
       setIsGameWon(true); // L'utilisateur a trouvé le bon nombre
     } else {
       setTryCounter((prev) => prev + 1); // Incrémente le compteur d'essais
-      alert(guess > randomNumber ? "Trop grand !" : "Trop petit !");
+      alert(guess > randomNumber ? "C'est moins !" : "C'est plus !");
     }
 
     setUserGuess(""); // Réinitialise le champ d'entrée
@@ -53,7 +71,9 @@ export default function App() {
     return (
       <View style={styles.container}>
         <Navbar />
-        <Text style={styles.textWhite}>Bienvenue dans le jeu de devinettes !</Text>
+        <Text style={styles.textWhite}>
+          Êtes-vous prêt à trouver le bon nombre ? 😊
+        </Text>
         <Button
           title="Commencer le jeu"
           onPress={() => setIsGameStarted(true)} // Lance le jeu
@@ -69,8 +89,9 @@ export default function App() {
         <Navbar />
         <Text style={styles.textWhite}>Game Over</Text>
         <Text style={styles.textWhite}>
-          Le nombre à deviner était {randomNumber}
+          Le nombre à deviner était {randomNumber}, Vous avez utilisé {tryCounter}{" "} essais
         </Text>
+        <Button title="Rejouez" onPress={resetGame} />
       </View>
     );
   }
@@ -80,10 +101,13 @@ export default function App() {
     return (
       <View style={styles.container}>
         <Navbar />
-        <Text style={styles.textWhite}>Bravo ! Vous avez trouvé le bon chiffre</Text>
+        <Text style={styles.textWhite}>
+          Bravo ! Vous avez trouvé le bon chiffre
+        </Text>
         <Text style={styles.textWhite}>
           Le nombre était bien {randomNumber}, félicitations !
         </Text>
+        <Button title="Rejouez" onPress={resetGame} />
       </View>
     );
   }
