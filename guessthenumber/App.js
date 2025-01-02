@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TextInput, Button } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Button,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 import Navbar from "./components/Navbar";
 import Counter from "./components/Counter";
 import TryCounter from "./components/TryCounter";
@@ -26,8 +34,7 @@ export default function App() {
     setIsGameOver(false);
     setIsGameWon(false);
     setIsGameStarted(false);
-    setRandomNumber(generateRandomNumber()); // Générer un nouveau nombre
-    console.log("Nouveau chiffre aléatoire :", randomNumber);
+    setRandomNumber(generateRandomNumber());
   };
 
   // Gestion du compteur de temps
@@ -35,20 +42,20 @@ export default function App() {
     if (!isGameStarted || isGameOver || isGameWon) return;
 
     if (count === 0) {
-      setIsGameOver(true); // Le temps est écoulé, le jeu est terminé
+      setIsGameOver(true); // Fin du jeu lorsque le temps est écoulé
+      return;
     }
 
-    if (tryCounter === 10) {
-      setIsGameOver(true); // Le nombre d'essais est atteint, le jeu est terminé
-    }
+    const timer = setInterval(() => {
+      setCount((prev) => Math.max(prev - 1, 0)); // Empêche count de descendre en dessous de 0
+    }, 1000);
 
-    const timer = setInterval(() => setCount((prev) => prev - 1), 1000);
-    return () => clearInterval(timer); // Nettoyer l'intervalle pour éviter les fuites de mémoire
-  }, [count, isGameStarted, isGameOver, isGameWon]);
+    return () => clearInterval(timer); // Nettoyage pour éviter les fuites mémoire
+  }, [isGameStarted, isGameOver, isGameWon, count]);
 
   // Gestion de la soumission de l'utilisateur
   const handleUserInput = () => {
-    if (!userGuess) return; // Si aucune entrée, ne rien faire
+    if (!userGuess) return;
     const guess = parseInt(userGuess, 10);
 
     if (isNaN(guess) || guess < 1 || guess > 1000) {
@@ -56,63 +63,68 @@ export default function App() {
       return;
     }
 
+    if (tryCounter === 9) {
+      setIsGameOver(true);
+      return;
+    }
+
     if (guess === randomNumber) {
-      setIsGameWon(true); // L'utilisateur a trouvé le bon nombre
+      setIsGameWon(true);
     } else {
-      setTryCounter((prev) => prev + 1); // Incrémente le compteur d'essais
+      setTryCounter((prev) => prev + 1);
       alert(guess > randomNumber ? "C'est moins !" : "C'est plus !");
     }
 
-    setUserGuess(""); // Réinitialise le champ d'entrée
+    setUserGuess(""); // Réinitialise le champ d'entrée après validation
   };
 
-  // Gestion de la vue d'attente
+  // Données pour la grille
+  const gridData = [
+    { id: "1", value: 1 },
+    { id: "2", value: 2 },
+    { id: "3", value: 3 },
+    { id: "4", value: 4 },
+    { id: "5", value: 5 },
+    { id: "6", value: 6 },
+    { id: "7", value: 7 },
+    { id: "8", value: 8 },
+    { id: "9", value: 9 },
+    { id: "0", value: 0 },
+    { id: "999", value: "DEL" },
+  ];
+
+  const handleGridInput = (value) => {
+    if (value === "DEL") {
+      setUserGuess((prev) => prev.slice(0, -1)); // Supprime le dernier caractère
+    } else {
+      setUserGuess((prev) => prev + value.toString()); // Ajoute la valeur sélectionnée
+    }
+  };
+
+  const clearInput = () => {
+    setUserGuess("");
+  };
+
   if (!isGameStarted) {
     return (
       <View style={styles.container}>
-        <Navbar />
-        <Text style={styles.textWhite}>
-          Êtes-vous prêt à trouver le bon nombre ? 😊
-        </Text>
-        <Button
-          title="Commencer le jeu"
-          onPress={() => setIsGameStarted(true)} // Lance le jeu
-        />
+        <Text style={styles.textWhite}>Prêt à jouer ?</Text>
+        <Button title="Commencer" onPress={() => setIsGameStarted(true)} />
       </View>
     );
   }
 
-  // Gestion de l'affichage Game Over
   if (isGameOver) {
     return (
       <View style={styles.container}>
-        <Navbar />
-        <Text style={styles.textWhite}>Game Over</Text>
         <Text style={styles.textWhite}>
-          Le nombre à deviner était {randomNumber}, Vous avez utilisé {tryCounter}{" "} essais
+          Dommage, le nombre à deviner était {randomNumber}.
         </Text>
-        <Button title="Rejouez" onPress={resetGame} />
+        <Button title="Réessayer" onPress={resetGame} />
       </View>
     );
   }
 
-  // Gestion de l'affichage Victoire
-  if (isGameWon) {
-    return (
-      <View style={styles.container}>
-        <Navbar />
-        <Text style={styles.textWhite}>
-          Bravo ! Vous avez trouvé le bon chiffre
-        </Text>
-        <Text style={styles.textWhite}>
-          Le nombre était bien {randomNumber}, félicitations !
-        </Text>
-        <Button title="Rejouez" onPress={resetGame} />
-      </View>
-    );
-  }
-
-  // Affichage du jeu en cours
   return (
     <View style={styles.container}>
       <Navbar />
@@ -122,13 +134,25 @@ export default function App() {
       <Counter count={count} />
       <TextInput
         style={styles.userInput}
-        placeholder="Entrez un nombre entre 1 et 1000"
+        placeholder="Votre saisie s'affiche ici"
         keyboardType="numeric"
         value={userGuess}
-        onChangeText={(text) => setUserGuess(text)} // Capture l'entrée utilisateur
-        onSubmitEditing={handleUserInput} // Appelé lorsqu'on valide l'entrée
+        editable={false} // Rend le champ non modifiable par l'utilisateur
       />
-      <Button title="Valider" onPress={handleUserInput} />
+      <FlatList
+        data={gridData}
+        keyExtractor={(item) => item.id}
+        numColumns={3}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.gridItem}
+            onPress={() => handleGridInput(item.value)}
+          >
+            <Text style={styles.gridText}>{item.value}</Text>
+          </TouchableOpacity>
+        )}
+      />
+      <Button title="OK" onPress={handleUserInput} />
       <TryCounter tryCounter={tryCounter} />
     </View>
   );
@@ -156,5 +180,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     fontSize: 16,
+  },
+  gridItem: {
+    flex: 1,
+    margin: 5,
+    padding: 20,
+    backgroundColor: "#546E7A",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  delButton: {
+    backgroundColor: "#FF5252", // Couleur différente pour DEL
+  },
+  gridText: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });
