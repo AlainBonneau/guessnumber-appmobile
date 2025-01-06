@@ -10,9 +10,11 @@ function Navbar() {
 
 const styles = StyleSheet.create({
   navbar: {
-    backgroundColor: "#333",
+    marginTop: 30,
+    backgroundColor: "#546E7A",
     padding: 10,
     marginBottom: 10,
+    borderRadius: 10,
   },
   text: {
     color: "#FFF176",

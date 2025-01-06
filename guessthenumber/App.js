@@ -75,7 +75,7 @@ export default function App() {
       alert(guess > randomNumber ? "C'est moins !" : "C'est plus !");
     }
 
-    setUserGuess(""); 
+    setUserGuess("");
   };
 
   // Données pour la grille
@@ -145,15 +145,26 @@ export default function App() {
         data={gridData}
         keyExtractor={(item) => item.id}
         numColumns={3}
+        initialNumToRender={12} // Rendre tous les éléments initiaux
+        getItemLayout={(data, index) => ({
+          length: 60,
+          offset: 60 * index,
+          index,
+        })}
+        columnWrapperStyle={{ justifyContent: "space-between" }}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.gridItem}
+            style={[
+              styles.gridItem,
+              item.value === "DEL" && styles.delButton,
+            ]}
             onPress={() => handleGridInput(item.value)}
           >
             <Text style={styles.gridText}>{item.value}</Text>
           </TouchableOpacity>
         )}
       />
+
       <Button title="OK" onPress={handleUserInput} />
       <TryCounter tryCounter={tryCounter} />
     </View>
@@ -190,6 +201,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#546E7A",
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FFF176",
+    borderStyle: "solid",
     borderRadius: 10,
   },
   delButton: {
