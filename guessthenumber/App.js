@@ -42,7 +42,7 @@ export default function App() {
     if (!isGameStarted || isGameOver || isGameWon) return;
 
     if (count === 0) {
-      setIsGameOver(true); // Fin du jeu lorsque le temps est écoulé
+      setIsGameOver(true);
       return;
     }
 
@@ -75,7 +75,7 @@ export default function App() {
       alert(guess > randomNumber ? "C'est moins !" : "C'est plus !");
     }
 
-    setUserGuess(""); // Réinitialise le champ d'entrée après validation
+    setUserGuess(""); 
   };
 
   // Données pour la grille
@@ -93,6 +93,7 @@ export default function App() {
     { id: "999", value: "DEL" },
   ];
 
+  // Gestion de la saisie de l'utilisateur
   const handleGridInput = (value) => {
     if (value === "DEL") {
       setUserGuess((prev) => prev.slice(0, -1)); // Supprime le dernier caractère
@@ -101,6 +102,7 @@ export default function App() {
     }
   };
 
+  // Effacer la saisie de l'utilisateur
   const clearInput = () => {
     setUserGuess("");
   };
@@ -191,7 +193,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   delButton: {
-    backgroundColor: "#FF5252", // Couleur différente pour DEL
+    backgroundColor: "#FF5252",
   },
   gridText: {
     color: "#FFFFFF",
