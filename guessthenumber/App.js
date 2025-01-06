@@ -20,6 +20,8 @@ export default function App() {
   const [isGameWon, setIsGameWon] = useState(false); // L'utilisateur a-t-il gagné ?
   const [isGameStarted, setIsGameStarted] = useState(false); // Le jeu a-t-il commencé ?
   const [randomNumber, setRandomNumber] = useState(generateRandomNumber()); // Nombre aléatoire à deviner
+  const [showResult, setShowResult] = useState(false); // Contrôle l'affichage de "C'est plus" ou "C'est moins"
+  const [resultMessage, setResultMessage] = useState("");
 
   // Générer un nouveau nombre aléatoire
   function generateRandomNumber() {
@@ -35,6 +37,8 @@ export default function App() {
     setIsGameWon(false);
     setIsGameStarted(false);
     setRandomNumber(generateRandomNumber());
+    setShowResult(false);
+    setResultMessage("");
   };
 
   // Gestion du compteur de temps
@@ -56,10 +60,16 @@ export default function App() {
   // Gestion de la soumission de l'utilisateur
   const handleUserInput = () => {
     if (!userGuess) return;
+
     const guess = parseInt(userGuess, 10);
 
     if (isNaN(guess) || guess < 1 || guess > 1000) {
       alert("Veuillez entrer un nombre valide entre 1 et 1000.");
+      return;
+    }
+
+    if (guess === randomNumber) {
+      setIsGameWon(true);
       return;
     }
 
@@ -68,14 +78,12 @@ export default function App() {
       return;
     }
 
-    if (guess === randomNumber) {
-      setIsGameWon(true);
-    } else {
-      setTryCounter((prev) => prev + 1);
-      alert(guess > randomNumber ? "C'est moins !" : "C'est plus !");
-    }
+    setTryCounter((prev) => prev + 1);
 
-    setUserGuess("");
+    // Détermine le message à afficher
+    setResultMessage(guess > randomNumber ? "C'est moins" : "C'est plus");
+    setShowResult(true); // Affiche le résultat après clic sur "OK"
+    setUserGuess(""); // Réinitialise la saisie
   };
 
   // Données pour la grille
@@ -127,6 +135,19 @@ export default function App() {
     );
   }
 
+  function result() {
+    if (!showResult) return null;
+    return (
+      <View style={styles.result}>
+        <Text style={styles.textWhite}>
+          {parseInt(userGuess, 10) > randomNumber
+            ? "C'est moins"
+            : "C'est plus"}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Navbar />
@@ -134,6 +155,9 @@ export default function App() {
         Trouverez-vous le bon chiffre avant la fin du temps imparti ?
       </Text>
       <Counter count={count} />
+      <View style={styles.result}>
+        <Text style={styles.textResult}>{resultMessage}</Text>
+      </View>
       <TextInput
         style={styles.userInput}
         placeholder="Votre saisie s'affiche ici"
@@ -154,10 +178,7 @@ export default function App() {
         columnWrapperStyle={{ justifyContent: "space-between" }}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={[
-              styles.gridItem,
-              item.value === "DEL" && styles.delButton,
-            ]}
+            style={[styles.gridItem, item.value === "DEL" && styles.delButton]}
             onPress={() => handleGridInput(item.value)}
           >
             <Text style={styles.gridText}>{item.value}</Text>
@@ -183,6 +204,22 @@ const styles = StyleSheet.create({
     color: "#FAFAFA",
     textAlign: "center",
     marginBottom: 16,
+  },
+  result: {
+    width: "80%",
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginTop: 20,
+    backgroundColor: "#546E7A",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  textResult: {
+    color: "#FFF176",
+    textAlign: "center",
+    fontSize: 30,
   },
   userInput: {
     width: "80%",
