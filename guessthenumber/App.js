@@ -117,6 +117,7 @@ export default function App() {
   if (!isGameStarted) {
     return (
       <View style={styles.container}>
+        <Text style={styles.startGame}>Guess The Number</Text>
         <Text style={styles.textWhite}>Prêt à jouer ?</Text>
         <Button title="Commencer" onPress={() => setIsGameStarted(true)} />
       </View>
@@ -126,6 +127,7 @@ export default function App() {
   if (isGameOver) {
     return (
       <View style={styles.container}>
+        <Text style={styles.gameOver}>GAME OVER</Text>
         <Text style={styles.textWhite}>
           Dommage, le nombre à deviner était {randomNumber}.
         </Text>
@@ -154,6 +156,7 @@ export default function App() {
         Trouverez-vous le bon chiffre avant la fin du temps imparti ?
       </Text>
       <Counter count={count} />
+      <TryCounter tryCounter={tryCounter} />
       <View style={styles.result}>
         <Text style={styles.textResult}>{resultMessage}</Text>
       </View>
@@ -179,9 +182,9 @@ export default function App() {
           </TouchableOpacity>
         )}
       />
-
-      <Button title="OK" onPress={handleUserInput} />
-      <TryCounter tryCounter={tryCounter} />
+      <TouchableOpacity onPress={handleUserInput}>
+        <Text style={styles.submitButton}>Guess</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -244,5 +247,21 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 20,
     fontWeight: "bold",
+  },
+  gameOver: {
+    color: "#FFF176",
+    fontSize: 50,
+    fontWeight: "bold",
+  },
+  startGame: {
+    color: "#FFF176",
+    fontSize: 40,
+    fontWeight: "bold",
+  },
+  submitButton: {
+    backgroundColor: "#FFF176",
+    padding: 10,
+    fontSize: 20,
+    borderRadius: 10,
   },
 });
