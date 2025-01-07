@@ -21,7 +21,7 @@ export default function App() {
   const [isGameStarted, setIsGameStarted] = useState(false); // Le jeu a-t-il commencé ?
   const [randomNumber, setRandomNumber] = useState(generateRandomNumber()); // Nombre aléatoire à deviner
   const [showResult, setShowResult] = useState(false); // Contrôle l'affichage de "C'est plus" ou "C'est moins"
-  const [resultMessage, setResultMessage] = useState("");
+  const [resultMessage, setResultMessage] = useState(""); // Montre si le nombre est plus grand ou plus petit
 
   // Générer un nouveau nombre aléatoire
   function generateRandomNumber() {
@@ -51,10 +51,10 @@ export default function App() {
     }
 
     const timer = setInterval(() => {
-      setCount((prev) => Math.max(prev - 1, 0)); // Empêche count de descendre en dessous de 0
+      setCount((prev) => Math.max(prev - 1, 0));
     }, 1000);
 
-    return () => clearInterval(timer); // Nettoyage pour éviter les fuites mémoire
+    return () => clearInterval(timer);
   }, [isGameStarted, isGameOver, isGameWon, count]);
 
   // Gestion de la soumission de l'utilisateur
@@ -80,10 +80,9 @@ export default function App() {
 
     setTryCounter((prev) => prev + 1);
 
-    // Détermine le message à afficher
     setResultMessage(guess > randomNumber ? "C'est moins" : "C'est plus");
-    setShowResult(true); // Affiche le résultat après clic sur "OK"
-    setUserGuess(""); // Réinitialise la saisie
+    setShowResult(true);
+    setUserGuess("");
   };
 
   // Données pour la grille
@@ -104,9 +103,9 @@ export default function App() {
   // Gestion de la saisie de l'utilisateur
   const handleGridInput = (value) => {
     if (value === "DEL") {
-      setUserGuess((prev) => prev.slice(0, -1)); // Supprime le dernier caractère
+      setUserGuess((prev) => prev.slice(0, -1));
     } else {
-      setUserGuess((prev) => prev + value.toString()); // Ajoute la valeur sélectionnée
+      setUserGuess((prev) => prev + value.toString());
     }
   };
 
@@ -163,18 +162,13 @@ export default function App() {
         placeholder="Votre saisie s'affiche ici"
         keyboardType="numeric"
         value={userGuess}
-        editable={false} // Rend le champ non modifiable par l'utilisateur
+        editable={false}
       />
       <FlatList
         data={gridData}
+        style={{ width: "100%", height: 200 }}
         keyExtractor={(item) => item.id}
         numColumns={3}
-        initialNumToRender={12} // Rendre tous les éléments initiaux
-        getItemLayout={(data, index) => ({
-          length: 60,
-          offset: 60 * index,
-          index,
-        })}
         columnWrapperStyle={{ justifyContent: "space-between" }}
         renderItem={({ item }) => (
           <TouchableOpacity
