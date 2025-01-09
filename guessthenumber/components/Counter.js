@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     width: "80%",
     marginLeft: "auto",
     marginRight: "auto",
-    marginTop: 20,
+    marginTop: 10,
     backgroundColor: "#546E7A",
     display: "flex",
     justifyContent: "center",
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   text: {
     color: "#FFF176",
     textAlign: "center",
-    fontSize: 100,
+    fontSize: 50,
   },
 });
 
