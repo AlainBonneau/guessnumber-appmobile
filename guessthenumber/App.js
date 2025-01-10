@@ -8,11 +8,18 @@ import {
   FlatList,
   Dimensions,
 } from "react-native";
+
+import { scale, moderateScale } from "react-native-size-matters";
+
 import Navbar from "./components/Navbar";
 import Counter from "./components/Counter";
 import TryCounter from "./components/TryCounter";
 
-// Déclaration des states
+// Génère un nombre aléatoire
+function generateRandomNumber() {
+  return Math.floor(Math.random() * 1000) + 1;
+}
+
 export default function App() {
   const [userGuess, setUserGuess] = useState("");
   const [tryCounter, setTryCounter] = useState(0);
@@ -24,12 +31,7 @@ export default function App() {
   const [showResult, setShowResult] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
 
-  // Fonction pour générer un nombre aléatoire
-  function generateRandomNumber() {
-    return Math.floor(Math.random() * 1000) + 1;
-  }
-
-  // Fonction pour réinitialiser le jeu
+  // Remise à zéro du jeu
   const resetGame = () => {
     setUserGuess("");
     setTryCounter(0);
@@ -42,22 +44,20 @@ export default function App() {
     setResultMessage("");
   };
 
-  // Hook useEffect pour gérer le temps imparti
+  // Gérer le temps imparti
   useEffect(() => {
     if (!isGameStarted || isGameOver || isGameWon) return;
     if (count === 0) {
       setIsGameOver(true);
       return;
     }
-
     const timer = setInterval(() => {
       setCount((prev) => Math.max(prev - 1, 0));
     }, 1000);
-
     return () => clearInterval(timer);
   }, [isGameStarted, isGameOver, isGameWon, count]);
 
-  // Fonction pour gérer la saisie de l'utilisateur
+  // Validation de l'utilisateur
   const handleUserInput = () => {
     if (!userGuess) return;
 
@@ -82,30 +82,34 @@ export default function App() {
     setUserGuess("");
   };
 
-  // Données pour la grille de chiffres
+  // Données du clavier (4×3)
   const gridData = [
-    { id: "1", value: 1 },
-    { id: "2", value: 2 },
-    { id: "3", value: 3 },
-    { id: "4", value: 4 },
-    { id: "5", value: 5 },
-    { id: "6", value: 6 },
-    { id: "7", value: 7 },
-    { id: "8", value: 8 },
-    { id: "9", value: 9 },
-    { id: "0", value: 0 },
+    { id: "1", value: "1" },
+    { id: "2", value: "2" },
+    { id: "3", value: "3" },
+    { id: "4", value: "4" },
+    { id: "5", value: "5" },
+    { id: "6", value: "6" },
+    { id: "7", value: "7" },
+    { id: "8", value: "8" },
+    { id: "9", value: "9" },
     { id: "999", value: "DEL" },
+    { id: "0", value: "0" },
+    { id: "guess", value: "GUESS" },
   ];
 
-  // Fonction pour gérer la saisie de l'utilisateur
+  // Gestion des touches de clavier
   const handleGridInput = (value) => {
     if (value === "DEL") {
       setUserGuess((prev) => prev.slice(0, -1));
+    } else if (value === "GUESS") {
+      handleUserInput();
     } else {
       setUserGuess((prev) => prev + value.toString());
     }
   };
 
+  // Écrans
   if (!isGameStarted) {
     return (
       <View style={styles.container}>
@@ -150,10 +154,14 @@ export default function App() {
     );
   }
 
-  // Fonction pour afficher les éléments de la grille
+  // Rendu des items (touches du clavier)
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={[styles.gridItem, item.value === "DEL" && styles.delButton]}
+      style={[
+        styles.gridItem,
+        item.value === "DEL" && styles.delButton,
+        item.value === "GUESS" && styles.guessButton,
+      ]}
       onPress={() => handleGridInput(item.value)}
     >
       <Text style={styles.gridText}>{item.value}</Text>
@@ -182,6 +190,7 @@ export default function App() {
         value={userGuess}
         editable={false}
       />
+
       <View style={styles.gridWrapper}>
         <FlatList
           data={gridData}
@@ -192,15 +201,11 @@ export default function App() {
           columnWrapperStyle={{ justifyContent: "space-around" }}
         />
       </View>
-
-      <TouchableOpacity style={styles.submitButton} onPress={handleUserInput}>
-        <Text style={styles.submitButtonText}>Guess</Text>
-      </TouchableOpacity>
     </View>
   );
 }
 
-// Dimensions de l’écran pour 40 %
+// Dimensions
 const screenHeight = Dimensions.get("window").height;
 const gridHeight = screenHeight * 0.5;
 
@@ -210,95 +215,83 @@ const styles = StyleSheet.create({
     backgroundColor: "#263238",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: scale(20),
   },
-
   gridWrapper: {
     width: "100%",
     height: gridHeight,
     justifyContent: "center",
     alignItems: "center",
   },
-
   textWhite: {
     color: "#FAFAFA",
     textAlign: "center",
-    marginBottom: 16,
   },
   result: {
     width: "80%",
-    marginTop: 20,
+    marginTop: scale(20),
     backgroundColor: "#546E7A",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 10,
-    paddingVertical: 10,
+    borderRadius: scale(10),
+    paddingVertical: scale(5),
   },
   textResult: {
     color: "#FFF176",
     textAlign: "center",
-    fontSize: 30,
+    fontSize: moderateScale(20),
   },
   userInput: {
     width: "80%",
-    marginVertical: 20,
+    marginVertical: scale(20),
     textAlign: "center",
     backgroundColor: "#546E7A",
     color: "#FAFAFA",
-    borderRadius: 10,
-    padding: 10,
-    fontSize: 16,
+    borderRadius: scale(10),
+    padding: scale(10),
+    fontSize: moderateScale(12),
   },
   gridItem: {
-    margin: 4,
-    padding: 30,
+    margin: scale(4),
+    padding: scale(28),
     backgroundColor: "#546E7A",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#FFF176",
-    borderRadius: 10,
+    borderRadius: scale(10),
   },
   delButton: {
     backgroundColor: "#FF5252",
   },
+  guessButton: {
+    backgroundColor: "#FFF176",
+  },
   gridText: {
     color: "#FFFFFF",
-    fontSize: 22,
+    fontSize: moderateScale(14),
     fontWeight: "bold",
   },
   gameOver: {
     color: "#FFF176",
-    fontSize: 40,
+    fontSize: moderateScale(40),
     fontWeight: "bold",
   },
   startGame: {
     color: "#FFF176",
-    fontSize: 40,
+    fontSize: moderateScale(40),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: scale(20),
   },
   startButton: {
     backgroundColor: "#FFF176",
-    borderRadius: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    borderRadius: scale(10),
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(10),
   },
   startButtonText: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
     color: "#263238",
-    fontWeight: "bold",
-  },
-  submitButton: {
-    backgroundColor: "#FFF176",
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  submitButtonText: {
-    color: "#263238",
-    fontSize: 20,
     fontWeight: "bold",
   },
 });
