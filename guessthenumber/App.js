@@ -226,6 +226,8 @@ const styles = StyleSheet.create({
   textWhite: {
     color: "#FAFAFA",
     textAlign: "center",
+    fontSize: moderateScale(15),
+    marginBottom: scale(10),
   },
   result: {
     width: "80%",
@@ -239,7 +241,7 @@ const styles = StyleSheet.create({
   textResult: {
     color: "#FFF176",
     textAlign: "center",
-    fontSize: moderateScale(20),
+    fontSize: moderateScale(15),
   },
   userInput: {
     width: "80%",

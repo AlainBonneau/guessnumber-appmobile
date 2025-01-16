@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   text: {
     color: "#FFF176",
     textAlign: "center",
-    fontSize: 50,
+    fontSize: 30,
   },
 });
 
